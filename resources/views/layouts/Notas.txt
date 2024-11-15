@@ -1,0 +1,7 @@
+php artisan make:controller NombreControlador (Solo el archivo)
+
+php artisan make:controller NombreControlador --resource (Ya con metodos crud)
+
+php artisan make:migrations
+
+php artisan make:view
