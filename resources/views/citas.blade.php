@@ -31,6 +31,7 @@
     <table class="table table-striped table-bordered" id="citasTable">
         <thead>
             <tr>
+            <th>id</th>
                 <th>Nombre Mascota</th>
                 <th>Servicio</th>
                 <th>Fecha y Hora</th>
@@ -41,8 +42,9 @@
         <tbody>
             @foreach ($citas as $cita)
             <tr>
-                <td>{{ $cita->mascota->nombre }}</td>
-                <td>{{ $cita->servicio->nombre }}</td>
+            <td>{{ $cita->id }} </td>
+                <td>{{ $cita->mascota ? $cita->mascota->nombre : 'Mascota no asignada' }}</td>
+                <td>{{ $cita->servicio ? $cita->servicio->nombre : 'Servicio no asignado' }}</td>
                 <td>{{ $cita->fecha }} - {{ $cita->hora }}</td>
                 <td>{{ $cita->estado }}</td>
                 <td>
@@ -245,9 +247,10 @@
             citas.forEach(cita => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${cita.mascota.nombre}</td>
-                    <td>${cita.servicio.nombre}</td>
-                    <td>${cita.fecha}</td>
+                    <td>${cita.id}</td>
+            <td>${cita.mascota ? cita.mascota.nombre : 'Mascota no asignada'}</td>
+            <td>${cita.servicio ? cita.servicio.nombre : 'Servicio no asignado'}</td>
+            <td>${cita.fecha} - ${cita.hora}</td>
                     <td>${cita.hora}</td>
                     <td>${cita.estado}</td>
                     <td>

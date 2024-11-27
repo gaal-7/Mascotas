@@ -53,25 +53,21 @@
         <td>{{ $mascota->nombre_dueño }}</td>
         <td>{{ $mascota->telefono }}</td>
         <td>
-            @if ($mascota->imagen_base64)
-                <!-- Mostrar la imagen usando la URL -->
-                <img src="{{ url('/mascota/' . $mascota->id . '/imagen') }}" style="width: 50px; height: auto;">
-            @else
-                <p>No disponible</p>
-            @endif
+        @if ($mascota->imagen)
+    <img src="{{ asset('storage/' . $mascota->imagen) }}" style="width: 50px; height: auto;">
+@else
+    <p>No disponible</p>
+@endif
+
         </td>
-
 </td>
-
-
-
         <td>
             <button class="btn btn-primary btn-edit" data-id="{{ $mascota->id }}">
                 <i class="fa fa-pencil-alt" aria-hidden="true"></i> Editar
             </button>
             <button class="btn btn-danger btn-delete" data-id="{{ $mascota->id }}">
-                <i class="fa fa-trash" aria-hidden="true"></i> Eliminar
-            </button>
+                    <i class="fa fa-trash" aria-hidden="true"></i> Eliminar
+                    </button>
         </td>
     </tr>
     @endforeach
@@ -138,7 +134,8 @@
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form id="formEdit" method="POST">
+            <form id="formEdit" method="POST" enctype="multipart/form-data">
+
                 @csrf
                 @method('PUT')
                 <div class="modal-header">
@@ -177,19 +174,21 @@
                     </div>
                     <div class="mb-3">
     <label for="editImagen" class="form-label">Imagen Actual</label>
-    <div>
+    <div id="currentImage">
         @if ($mascota->imagen)
-            <img src="{{ asset('storage/' . $mascota->imagen) }}" alt="Imagen de {{ $mascota->nombre }}" style="width: 100px; height: auto;">
+            <img src="{{ asset('storage/' . $mascota->imagen) }}" style="width: 50px; height: auto;">
         @else
             <p>No disponible</p>
         @endif
     </div>
 </div>
+
 <div class="mb-3">
     <label for="imagen" class="form-label">Cambiar Imagen</label>
     <input type="file" class="form-control" name="imagen" accept="image/*">
 </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button type="submit" class="btn btn-primary">Guardar cambios</button>
@@ -225,7 +224,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Editar mascota
         const editButtons = document.querySelectorAll('.btn-edit');
         editButtons.forEach(button => {
             button.addEventListener('click', function () {
@@ -241,16 +239,22 @@
                         document.getElementById('editPeso').value = data.peso;
                         document.getElementById('editNombreDueño').value = data.nombre_dueño;
                         document.getElementById('editTelefono').value = data.telefono;
+                        if (data.imagen) {
+                        document.getElementById('currentImage').innerHTML = `<img src="{{ asset('storage/') }}/${data.imagen}" style="width: 50px; height: auto;">`;
+                    } else {
+                        document.getElementById('currentImage').innerHTML = '<p>No disponible</p>';
+                    }
                         document.getElementById('formEdit').action = `/mascotas/${data.id}`;
                         new bootstrap.Modal(document.getElementById('editModal')).show();
                     });
             });
         });
 
+
         // Búsqueda de mascotas
         const inputBuscar = document.getElementById('buscar');
         const clearInputBtn = document.getElementById('clearInput');
-        
+
         inputBuscar.addEventListener('input', function () {
             let query = this.value;
             fetch(`/mascotas/search?query=${query}`)
@@ -262,7 +266,7 @@
         });
 
         clearInputBtn.addEventListener('click', function () {
-            inputBuscar.value = ''; 
+            inputBuscar.value = '';
             inputBuscar.dispatchEvent(new Event('input'));
         });
 
@@ -282,6 +286,13 @@
                     <td>${mascota.nombre_dueño}</td>
                     <td>${mascota.telefono}</td>
                     <td>
+                    @if ($mascota->imagen)
+                            <img src="{{ asset('storage/') }}/${mascota.imagen}" style="width: 50px; height: auto;">
+        @else
+            <p>No disponible</p>
+        @endif
+            </td>
+                    <td>
                         <button class="btn btn-primary btn-edit" data-id="${mascota.id}">
                             <i class="fa fa-pencil-alt"></i> Editar
                         </button>
@@ -292,48 +303,53 @@
                 `;
                 tableBody.appendChild(row);
             });
-
-            // Reasignar eventos de editar y eliminar
-            attachEditEvent();
-            attachDeleteEvent();
-        }
-
-        // Función para asignar el evento de editar a los botones de editar
-        function attachEditEvent() {
             const editButtons = document.querySelectorAll('.btn-edit');
-            editButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const id = this.dataset.id;
-                    fetch(`/mascotas/${id}/edit`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('editId').value = data.id;
-                            document.getElementById('editNombre').value = data.nombre;
-                            document.getElementById('editEspecie').value = data.especie;
-                            document.getElementById('editRaza').value = data.raza;
-                            document.getElementById('editEdad').value = data.edad;
-                            document.getElementById('editPeso').value = data.peso;
-                            document.getElementById('editNombreDueño').value = data.nombre_dueño;
-                            document.getElementById('editTelefono').value = data.telefono;
-                            document.getElementById('formEdit').action = `/mascotas/${data.id}`;
-                            new bootstrap.Modal(document.getElementById('editModal')).show();
-                        });
-                });
-            });
-        }
-
-        // Función para asignar el evento de eliminar a los botones de eliminar
-        function attachDeleteEvent() {
+    editButtons.forEach(button => {
+        button.addEventListener('click', function () {
+                const id = this.dataset.id;
+                fetch(`/mascotas/${id}/edit`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('editId').value = data.id;
+                        document.getElementById('editNombre').value = data.nombre;
+                        document.getElementById('editEspecie').value = data.especie;
+                        document.getElementById('editRaza').value = data.raza;
+                        document.getElementById('editEdad').value = data.edad;
+                        document.getElementById('editPeso').value = data.peso;
+                        document.getElementById('editNombreDueño').value = data.nombre_dueño;
+                        document.getElementById('editTelefono').value = data.telefono;
+                        if (data.imagen) {
+                        document.getElementById('currentImage').innerHTML = `<img src="{{ asset('storage/') }}/${data.imagen}" style="width: 50px; height: auto;">`;
+                    } else {
+                        document.getElementById('currentImage').innerHTML = '<p>No disponible</p>';
+                    }
+                        document.getElementById('formEdit').action = `/mascotas/${data.id}`;
+                        new bootstrap.Modal(document.getElementById('editModal')).show();
+                    });
+        });
+    });
             const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const id = this.dataset.id;
-                    const form = document.getElementById('deleteForm');
-                    form.action = `/mascotas/${id}`;
-                    new bootstrap.Modal(document.getElementById('confirmDeleteModal')).show();
-                });
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const form = document.getElementById('deleteForm');
+                form.action = `/mascotas/${id}`;
+                new bootstrap.Modal(document.getElementById('confirmDeleteModal')).show();
             });
+        });
+
+
         }
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const form = document.getElementById('deleteForm');
+                form.action = `/mascotas/${id}`;
+                new bootstrap.Modal(document.getElementById('confirmDeleteModal')).show();
+            });
+        });
+
     });
 </script>
 

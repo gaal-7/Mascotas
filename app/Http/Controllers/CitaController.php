@@ -3,28 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Cita;
 use App\Models\Mascota;
 use App\Models\Servicio;
+use Illuminate\Http\Request;
 
 class CitaController extends Controller
 {
 
     public function index()
-{
-    $citas = Cita::with('mascota', 'servicio')->get(); 
-    $servicios = Servicio::all();
-    $mascotas = Mascota::all(); 
-    return view('citas', compact('citas', 'servicios','mascotas')); 
-}
-
-
-
+    {
+        $citas = Cita::with('mascota', 'servicio')->get();
+        $servicios = Servicio::all();
+        $mascotas = Mascota::all();
+        return view('citas', compact('citas', 'servicios', 'mascotas'));
+    }
+    
     public function create()
     {
-        $mascotas = Mascota::all();  
-        $servicios = Servicio::all(); 
+        $mascotas = Mascota::all();
+        $servicios = Servicio::all();
         return view('citas.create', compact('mascotas', 'servicios'));
     }
 
@@ -50,10 +48,10 @@ class CitaController extends Controller
     }
 
     public function edit($id)
-{
-    $cita = Cita::findOrFail($id);
-    return response()->json($cita);
-}
+    {
+        $cita = Cita::findOrFail($id);
+        return response()->json($cita);
+    }
 
     public function update(Request $request, $id)
     {
@@ -84,26 +82,24 @@ class CitaController extends Controller
 
         return redirect()->route('citas.index')->with('success', 'Cita eliminada con éxito.');
     }
-
     public function search(Request $request)
     {
         $query = $request->input('query');
-        
+
         if (empty($query)) {
             $citas = Cita::with('mascota', 'servicio')->get();
         } else {
             $citas = Cita::with('mascota', 'servicio')
-                        ->whereHas('mascota', function($q) use ($query) {
-                            $q->where('nombre', 'like', '%' . $query . '%');
-                        })
-                        ->orWhereHas('servicio', function($q) use ($query) {
-                            $q->where('nombre', 'like', '%' . $query . '%');
-                        })
-                        ->orWhere('fecha', 'like', '%' . $query . '%')
-                        ->orWhere('hora', 'like', '%' . $query . '%')
-                        ->get();
+                ->whereHas('mascota', function ($q) use ($query) {
+                    $q->where('nombre', 'like', '%' . $query . '%');
+                })
+                ->orWhereHas('servicio', function ($q) use ($query) {
+                    $q->where('nombre', 'like', '%' . $query . '%');
+                })
+                ->orWhere('fecha', 'like', '%' . $query . '%')
+                ->orWhere('hora', 'like', '%' . $query . '%')
+                ->get();
         }
-
         return response()->json(['citas' => $citas]);
     }
 }

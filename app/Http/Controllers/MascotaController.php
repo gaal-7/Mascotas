@@ -3,41 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Mascota;
+use Illuminate\Http\Request;
 
 class MascotaController extends Controller
 {
     public function index()
-{
-    $mascotas = Mascota::all();
-    foreach ($mascotas as $mascota) {
-        if ($mascota->imagen) {
-            $mascota->imagen_base64 = base64_encode(stream_get_contents($mascota->imagen));
-            dump($mascota);
+    {
+        $mascotas = Mascota::all();
+        foreach ($mascotas as $mascota) {
+            if ($mascota->imagen) {
+                $mascota->imagen_url = asset('storage/' . $mascota->imagen);
+            }
         }
+        return view('mascotas', compact('mascotas'));
     }
-
-    return view('mascotas', compact('mascotas'));
-}
-
-public function getImagen($id)
-{
-    $mascota = Mascota::find($id);
-    
-    if ($mascota && $mascota->imagen) {
-        // Decodificar la imagen base64 (suponiendo que la imagen está guardada en la base de datos como base64)
-        $raw_image_string = base64_encode(stream_get_contents($mascota->imagen));
-        
-        // Retornar la imagen con el tipo MIME adecuado
-        return response($raw_image_string)
-            ->header('Content-Type', $mascota->imagen_mime);
-    }
-
-    // Si no hay imagen o no se encuentra la mascota, retornar un 404
-    return abort(404, 'Imagen no disponible');
-}
-
 
     public function create()
     {
@@ -54,13 +34,13 @@ public function getImagen($id)
             'peso' => 'nullable|numeric',
             'nombre_dueño' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:15',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',  
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:51200',
         ]);
+
+        $imagenRuta = null;
+
         if ($request->hasFile('imagen')) {
-            $imagen = $request->file('imagen');
-            $imagenBase64 = base64_encode(file_get_contents($imagen));
-        } else {
-            $imagenBase64 = null;
+            $imagenRuta = $request->file('imagen')->store('imagenes/mascotas', 'public');
         }
 
         Mascota::create([
@@ -71,19 +51,18 @@ public function getImagen($id)
             'peso' => $request->peso,
             'nombre_dueño' => $request->nombre_dueño,
             'telefono' => $request->telefono,
-            'imagen' => $imagenBase64,  
+            'imagen' => $imagenRuta,
         ]);
-    
+
         return redirect()->route('mascotas.index')->with('success', 'Mascota agregada con éxito.');
     }
-    
 
     public function edit($id)
     {
         $mascota = Mascota::findOrFail($id);
-        return response()->json($mascota); 
+        return response()->json($mascota);
     }
-    
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -94,17 +73,18 @@ public function getImagen($id)
             'peso' => 'nullable|numeric',
             'nombre_dueño' => 'required|string|max:255',
             'telefono' => 'nullable|string|max:15',
-            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:51200',
         ]);
 
         $mascota = Mascota::findOrFail($id);
         if ($request->hasFile('imagen')) {
-            $imagen = $request->file('imagen');
-            $imagenBase64 = base64_encode(file_get_contents($imagen));
+            if ($mascota->imagen && \Storage::disk('public')->exists($mascota->imagen)) {
+                \Storage::disk('public')->delete($mascota->imagen);
+            }
+            $imagenRuta = $request->file('imagen')->store('imagenes/mascotas', 'public');
         } else {
-            $imagenBase64 = $mascota->imagen;
+            $imagenRuta = $mascota->imagen;
         }
-
         $mascota->update([
             'nombre' => $request->nombre,
             'especie' => $request->especie,
@@ -113,12 +93,11 @@ public function getImagen($id)
             'peso' => $request->peso,
             'nombre_dueño' => $request->nombre_dueño,
             'telefono' => $request->telefono,
-            'imagen' => $imagenBase64,  
+            'imagen' => $imagenRuta,
         ]);
-    
+
         return redirect()->route('mascotas.index')->with('success', 'Mascota actualizada con éxito.');
     }
-    
 
     public function destroy($id)
     {
@@ -134,8 +113,8 @@ public function getImagen($id)
             $mascotas = Mascota::all();
         } else {
             $mascotas = Mascota::where('nombre', 'like', '%' . $query . '%')
-                                ->orWhere('especie', 'like', '%' . $query . '%')
-                                ->get();
+                ->orWhere('especie', 'like', '%' . $query . '%')
+                ->get();
         }
         return response()->json(['mascotas' => $mascotas]);
     }

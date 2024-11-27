@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('peso', 5, 2)->nullable();
             $table->string('nombre_dueño', 255);
             $table->string('telefono', 15)->nullable();
-            $table->bytea('imagen', 255)->nullable();
+            $table->bytea('imagen')->nullable();
             $table->timestamps(); 
             $table->softDeletes();
         });
