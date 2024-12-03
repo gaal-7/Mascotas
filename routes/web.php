@@ -38,3 +38,12 @@ Route::get('/citas/{id}/edit', [CitaController::class, 'edit'])->name('citas.edi
 Route::put('/citas/{id}', [CitaController::class, 'update'])->name('citas.update');  
 Route::delete('/citas/{id}', [CitaController::class, 'destroy'])->name('citas.destroy');  
 Route::get('/citas/search', [CitaController::class, 'search'])->name('citas.search'); 
+
+// Rutas de Vacunas
+Route::get('/vacunas', [VacunaController::class, 'index'])->name('vacunas.index');
+Route::get('/vacunas/create', [VacunaController::class, 'create'])->name('vacunas.create');
+Route::post('/vacunas', [VacunaController::class, 'store'])->name('vacunas.store');
+Route::get('/vacunas/{id}/edit', [VacunaController::class, 'edit'])->name('vacunas.edit');
+Route::put('/vacunas/{id}', [VacunaController::class, 'update'])->name('vacunas.update');
+Route::delete('/vacunas/{id}', [VacunaController::class, 'destroy'])->name('vacunas.destroy');
+Route::get('/vacunas/search', [VacunaController::class, 'search'])->name('vacunas.search');

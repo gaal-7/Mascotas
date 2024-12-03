@@ -25,12 +25,13 @@ class Cita extends Model
     const DELETED_AT = 'deleted_at'; 
 
     public function mascota()
-    {
-        return $this->belongsTo(Mascota::class);
-    }
+{
+    return $this->belongsTo(Mascota::class, 'mascota_id');
+}
 
-    public function servicio()
-    {
-        return $this->belongsTo(Servicio::class);
-    }
+public function servicio()
+{
+    return $this->belongsTo(Servicio::class, 'servicio_id');
+}
+
 }

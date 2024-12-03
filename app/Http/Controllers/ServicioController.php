@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Servicio;
+use Illuminate\Http\Request;
 
 class ServicioController extends Controller
 {
@@ -37,10 +37,10 @@ class ServicioController extends Controller
     }
 
     public function edit($id)
-{
-    $servicio = Servicio::findOrFail($id);
-    return response()->json($servicio); 
-}
+    {
+        $servicio = Servicio::findOrFail($id);
+        return response()->json($servicio);
+    }
 
     public function update(Request $request, $id)
     {
@@ -64,20 +64,20 @@ class ServicioController extends Controller
     public function destroy($id)
     {
         $servicio = Servicio::findOrFail($id);
-        $servicio->delete(); 
+        $servicio->delete();
 
         return redirect()->route('servicios.index')->with('success', 'Servicio eliminado con éxito.');
     }
 
     public function search(Request $request)
     {
-        $query = $request->input('query');       
+        $query = $request->input('query');
         if (empty($query)) {
             $servicios = Servicio::all();
         } else {
             $servicios = Servicio::where('nombre', 'like', '%' . $query . '%')
-                                ->orWhere('descripcion', 'like', '%' . $query . '%')
-                                ->get();
+                ->orWhere('descripcion', 'like', '%' . $query . '%')
+                ->get();
         }
         return response()->json(['servicios' => $servicios]);
     }

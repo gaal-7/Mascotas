@@ -124,7 +124,7 @@
             </form>
         </div>
     </div>
-</div>  
+</div>
 
 <!-- Modal de confirmación de eliminación -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
@@ -172,7 +172,7 @@
 
         const inputBuscar = document.getElementById('buscar');
         const clearInputBtn = document.getElementById('clearInput');
-        
+
         inputBuscar.addEventListener('input', function () {
             let query = this.value;
             fetch(`/servicios/search?query=${query}`)
@@ -184,14 +184,14 @@
         });
 
         clearInputBtn.addEventListener('click', function () {
-            inputBuscar.value = ''; 
+            inputBuscar.value = '';
             inputBuscar.dispatchEvent(new Event('input'));
         });
 
         function updateTable(servicios) {
     const tableBody = document.querySelector('#serviciosTable tbody');
     tableBody.innerHTML = '';
-    
+
     servicios.forEach(servicio => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -237,8 +237,6 @@
         });
     });
 }
-
-
         const deleteButtons = document.querySelectorAll('.btn-delete');
         deleteButtons.forEach(button => {
             button.addEventListener('click', function () {
